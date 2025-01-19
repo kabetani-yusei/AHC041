@@ -39,6 +39,7 @@ class Solver:
         self.h = h
         self.a = np.array(a)
         self.result = [-1] * n  # 初期値: 全てのノードを親（-1） に設定
+        self.final_result = None
         self.graph = self.build_graph(edges)
         self.score_calculator = ScoreCalculator(n, a)
     def build_graph(self, edges):
@@ -47,9 +48,12 @@ class Solver:
         for u, v in edges:
             graph[u].append(v)
             graph[v].append(u)
+        # graphについて、aの値が小さくなるようにソート
+        for i in range(self.n):
+            graph[i].sort(key=lambda x: self.a[x])
         return graph
-    def calculate_score(self):
-        return self.score_calculator.calculate_score(self.result)
+    def calculate_score(self, res):
+        return self.score_calculator.calculate_score(res)
 
 
     def solve(self):
@@ -62,7 +66,29 @@ class Solver:
             if self.result[i] == -1:
                 visited[i] = 0
                 self.dfs(i, visited)
-        return self.result
+        now_score = self.calculate_score(self.result)
+        self.final_result = [i for i in self.result]
+        self.random_solve(sorted_indices, now_score)
+        return self.final_result
+
+    def random_solve(self, sorted_indices, now_score):
+        """
+        a[i]が小さい順に並べて、a[i]が小さい順に頂点を見ていく
+        """
+        # sorted_indicesの最初の10個をランダムに入れ替える
+        for _ in range(1000000):
+            np.random.shuffle(sorted_indices[:100])
+            self.result = [-1] * self.n
+            visited = [-1] * self.n
+            for i in sorted_indices:
+                if self.result[i] == -1:
+                    visited[i] = 0
+                    self.dfs(i, visited)
+            score = self.calculate_score(self.result)
+            if score > now_score:
+                self.final_result = [i for i in self.result]
+                now_score = score
+            return self.final_result
 
     def dfs(self, now, visited):
         """深さ優先探索"""
@@ -87,5 +113,5 @@ result = solver.solve()
 
 print(" ".join(map(str, result)))
 
-score = solver.calculate_score()
+score = solver.calculate_score(result)
 print(score, file=sys.stderr)
