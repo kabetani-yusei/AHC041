@@ -17,15 +17,15 @@ class ScoreCalculator:
         memo = {}
         score = 1
         for i in range(self.n):
-            score += self.a[i] * dfs(i, memo, result)
+            score += self.a[i] * dfs_for_score(i, memo, result)
         return score
-def dfs(i, memo, result):
+def dfs_for_score(i, memo, result):
     if result[i] == -1:
         memo[i] = 1
         return 1
     if i in memo:
         return memo[i]
-    memo[i] = 1 + dfs(result[i], memo, result)
+    memo[i] = 1 + dfs_for_score(result[i], memo, result)
     return memo[i]
 
 
@@ -60,23 +60,20 @@ class Solver:
         visited = [-1] * self.n
         for i in sorted_indices:
             if self.result[i] == -1:
-                self.bfs(i, visited)
+                visited[i] = 0
+                self.dfs(i, visited)
         return self.result
 
-    def bfs(self, start, visited):
-        """幅優先探索"""
-        visited[start] = 0
-        queue = deque([start])
-        while queue:
-            v = queue.popleft()
-            if visited[v] >= self.h:
-                break
-            for nv in self.graph[v]:
-                if visited[nv] != -1:
-                    continue
-                visited[nv] = visited[v] + 1
-                self.result[nv] = v
-                queue.append(nv)
+    def dfs(self, now, visited):
+        """深さ優先探索"""
+        if visited[now] >= self.h:
+            return
+        for nv in self.graph[now]:
+            if visited[nv] != -1:
+                continue
+            visited[nv] = visited[now] + 1
+            self.result[nv] = now
+            self.dfs(nv, visited)
 
 
 # 入力の読み取り部分
