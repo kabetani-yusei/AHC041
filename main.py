@@ -1,4 +1,5 @@
 from collections import defaultdict, deque
+import numpy as np
 import sys
 sys.setrecursionlimit(1000000)
 
@@ -36,7 +37,7 @@ class Solver:
         self.n = n
         self.m = m
         self.h = h
-        self.a = a
+        self.a = np.array(a)
         self.result = [-1] * n  # 初期値: 全てのノードを親（-1） に設定
         self.graph = self.build_graph(edges)
         self.score_calculator = ScoreCalculator(n, a)
@@ -53,11 +54,11 @@ class Solver:
 
     def solve(self):
         """
-        0から順に見ていき、-1ならば根と設定して伸ばしていく
-        ->
+        a[i]が小さい順に並べて、a[i]が小さい順に頂点を見ていく
         """
+        sorted_indices = np.argsort(self.a)
         visited = [-1] * self.n
-        for i in range(self.n):
+        for i in sorted_indices:
             if self.result[i] == -1:
                 self.bfs(i, visited)
         return self.result
@@ -90,4 +91,4 @@ result = solver.solve()
 print(" ".join(map(str, result)))
 
 score = solver.calculate_score()
-print(f"Score: {score}", file=sys.stderr)
+print(score, file=sys.stderr)
