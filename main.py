@@ -37,24 +37,45 @@ class Solver:
         self.m = m
         self.h = h
         self.a = a
-        self.edges = edges
         self.result = [-1] * n  # 初期値: 全てのノードを親（-1） に設定
-        self.graph = self.build_graph()
+        self.graph = self.build_graph(edges)
         self.score_calculator = ScoreCalculator(n, a)
-    def calculate_score(self):
-        return self.score_calculator.calculate_score(self.result)
-    def build_graph(self):
+    def build_graph(self, edges):
         """辺情報からグラフを構築"""
         graph = [[] for _ in range(self.n)]
-        for u, v in self.edges:
+        for u, v in edges:
             graph[u].append(v)
             graph[v].append(u)
         return graph
+    def calculate_score(self):
+        return self.score_calculator.calculate_score(self.result)
 
 
     def solve(self):
-        """ここに解法のロジックを実装する"""
+        """
+        0から順に見ていき、-1ならば根と設定して伸ばしていく
+        ->
+        """
+        visited = [-1] * self.n
+        for i in range(self.n):
+            if self.result[i] == -1:
+                self.bfs(i, visited)
         return self.result
+
+    def bfs(self, start, visited):
+        """幅優先探索"""
+        visited[start] = 0
+        queue = deque([start])
+        while queue:
+            v = queue.popleft()
+            if visited[v] >= self.h:
+                break
+            for nv in self.graph[v]:
+                if visited[nv] != -1:
+                    continue
+                visited[nv] = visited[v] + 1
+                self.result[nv] = v
+                queue.append(nv)
 
 
 # 入力の読み取り部分
