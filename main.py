@@ -76,8 +76,8 @@ class Solver:
         a[i]が小さい順に並べて、a[i]が小さい順に頂点を見ていく
         """
         # sorted_indicesの最初の10個をランダムに入れ替える
-        for _ in range(1000000):
-            np.random.shuffle(sorted_indices[:100])
+        for _ in range(1200):
+            np.random.shuffle(sorted_indices[:80])
             self.result = [-1] * self.n
             visited = [-1] * self.n
             for i in sorted_indices:
@@ -88,7 +88,7 @@ class Solver:
             if score > now_score:
                 self.final_result = [i for i in self.result]
                 now_score = score
-            return self.final_result
+        return self.final_result
 
     def dfs(self, now, visited):
         """深さ優先探索"""
